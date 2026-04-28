@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chidori Pomodoro</title>
+    <link rel="stylesheet" href="/src/style.css">
+  </head>
+  <body>
+    <div id="app">
+      <div class="tv-frame">
+        <div class="tv-screen-bezel">
+          <div class="background-container">
+            <video id="chidori-bg" loop muted playsinline autoplay preload="auto">
+              <source src="/src/assets/chidori.mp4" type="video/mp4" />
+            </video>
+            <div class="scanlines"></div>
+            <div class="noise-overlay"></div>
+          </div>
+          
+          <div class="battery-status">
+            <div class="battery-text">POWER SYSTEM</div>
+            <div class="battery-box">
+              <div class="battery-segment"></div>
+              <div class="battery-segment"></div>
+              <div class="battery-segment"></div>
+              <div class="battery-segment"></div>
+            </div>
+          </div>
+
+          <div id="timer">20:00</div>
+
+          <div class="sidebar">
+            <div id="sharingan" class="eye-status"></div>
+            <div class="controls">
+              <button id="start-btn" class="shinobi-btn">START</button>
+              <button id="reset-btn" class="shinobi-btn">Give Up</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
