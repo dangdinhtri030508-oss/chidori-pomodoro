@@ -40,7 +40,7 @@ audioBreak.loop = true;
 
 const audioKeepGoing = new Audio(session4KeepGoingSfx);
 const audioChidori = new Audio(chidoriSfx);
-audioChidori.loop = true;
+audioChidori.loop = false;
 audioChidori.volume = 0.3;
 
 const audioSS1 = new Audio(ss1Sfx);
@@ -175,17 +175,22 @@ function startTimer() {
       };
 
     } else if (sessionCount === 4) {
-      // Round 4: Chuỗi phát đặc biệt: Keepgoing -> Begin -> Chidori
+      // Round 4: Chuỗi phát đặc biệt: Keepgoing -> Begin -> Chidori -> Focus Music
       safePlay(audioKeepGoing);
       
       audioKeepGoing.onended = () => {
         safePlay(audioBegin);
+        
         audioBegin.onended = () => {
           safePlay(audioChidori);
+          
+          // Khi tiếng Chidori kết thúc, mới bắt đầu vào nhạc nền Focus
+          audioChidori.onended = () => {
+            safePlay(audioFocus);
+          };
         };
       };
-    }
-  } else {
+    } else {
     // Thời gian BREAK: Phát Break_1, sau khi xong thì loop nhạc break nền
     safePlay(audioBreak1);
     
@@ -228,4 +233,4 @@ startBtn.addEventListener('click', startTimer);
 resetBtn.addEventListener('click', resetTimer);
 
 updateDisplay();
-updateSharinganVisuals();
+updateSharinganVisuals();}
