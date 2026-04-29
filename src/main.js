@@ -32,21 +32,21 @@ import chidoriSfx from './assets/chidorisound.mp3'
 
 // Cấu hình hằng số (Giữ nguyên 10s/5s để bạn test nhanh)
 
-const FOCUS_TIME =10*60;
+const FOCUS_TIME =20*60;
 
-const BREAK_TIME = 5;
+const BREAK_TIME = 5*60;
 
 
 
 // Khởi tạo trạng thái
 
-let timeLeft = FOCUS_TIME;
+let timeLeft = FOCUS_TIME; 
 
 let timerId = null;
 
 let isRunning = false;
 
-let currentMode = 'FOCUS';
+let currentMode = 'FOCUS'; 
 
 let sessionCount = 1;
 
@@ -126,7 +126,7 @@ function updateSharinganVisuals() {
 
   sharingan.classList.remove('normal-spin', 'mangekyou-spin');
 
- 
+  
 
   if (currentMode === 'BREAK') {
 
@@ -156,7 +156,7 @@ function updateSharinganVisuals() {
 
   }
 
- 
+  
 
   sharingan.style.backgroundImage = `url(${currentImg})`;
 
@@ -230,13 +230,13 @@ function switchMode() {
 
   }
 
- 
+  
 
   updateSharinganVisuals();
 
   updateDisplay();
 
- 
+  
 
   // Tự động start sau khi switch (với delay nhẹ để nghe sound end)
 
@@ -244,7 +244,7 @@ function switchMode() {
 
     startTimer();
 
-  }, 500);
+  }, 500); 
 
 }
 
@@ -254,7 +254,7 @@ function startTimer() {
 
   if (isRunning) return;
 
- 
+  
 
   isRunning = true;
 
@@ -266,7 +266,7 @@ function startTimer() {
 
     chidoriVideo.play();
 
-   
+    
 
     if (sessionCount < 4) {
 
@@ -354,7 +354,7 @@ function resetTimer() {
 
   chidoriVideo.pause();
 
- 
+  
 
   startBtn.textContent = "START";
 
