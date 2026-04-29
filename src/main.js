@@ -6,7 +6,7 @@ import tomoe2 from './assets/sharingane_2.png'
 import tomoe3 from './assets/sharingan_3.png'
 import mangekyou from './assets/itachi_sharingan.png'
 
-// --- CẬP NHẬT SOUND ASSETS MỚI ---
+// --- CẬP NHẬT SOUND ASSETS ---
 import sharinganBeginSfx from './assets/sharingan_begin.mp3'
 import focusSfx from './assets/focus_music.mp3'
 import sharinganEndSfx from './assets/end_sharingan.mp3'
@@ -14,9 +14,9 @@ import breakSfx from './assets/break_music.mp3'
 import session4KeepGoingSfx from './assets/Session_4_Keepgoing.mp3'
 import chidoriSfx from './assets/chidorisound.mp3'
 
-// Cấu hình hằng số (Giữ nguyên 10s/5s để bạn test nhanh)
-const FOCUS_TIME =20*60;
-const BREAK_TIME = 5*60;
+// Cấu hình hằng số
+const FOCUS_TIME = 20 * 60;
+const BREAK_TIME = 5 * 60;
 
 // Khởi tạo trạng thái
 let timeLeft = FOCUS_TIME; 
@@ -39,6 +39,8 @@ const audioChidori = new Audio(chidoriSfx);
 audioChidori.loop = true;
 audioChidori.volume = 0.3;
 
+const allAudios = [audioFocus, audioBreak, audioChidori, audioBegin, audioEnd, audioKeepGoing];
+
 // Truy vấn DOM
 const timerDisplay = document.getElementById('timer');
 const startBtn = document.getElementById('start-btn');
@@ -46,6 +48,18 @@ const resetBtn = document.getElementById('reset-btn');
 const sharingan = document.getElementById('sharingan');
 const chidoriVideo = document.getElementById('chidori-bg');
 const segments = document.querySelectorAll('.battery-segment');
+
+// Vá lỗi: Kích hoạt tất cả âm thanh ngay khi người dùng tương tác lần đầu
+function unlockAudio() {
+  allAudios.forEach(audio => {
+    audio.play().then(() => {
+      audio.pause();
+      audio.currentTime = 0;
+    }).catch(() => {
+      // Bỏ qua lỗi nếu trình duyệt chưa cho phép
+    });
+  });
+}
 
 function updateDisplay() {
   const minutes = Math.floor(timeLeft / 60);
@@ -88,9 +102,7 @@ function updateSharinganVisuals() {
   }
 }
 
-// --- LOGIC DỪNG TOÀN BỘ ÂM THANH ---
 function stopAllAudio() {
-  const allAudios = [audioFocus, audioBreak, audioChidori, audioBegin, audioEnd, audioKeepGoing];
   allAudios.forEach(audio => {
     audio.pause();
     audio.currentTime = 0;
@@ -98,7 +110,7 @@ function stopAllAudio() {
 }
 
 function switchMode() {
-  stopAllAudio(); // Dừng âm thanh cũ trước khi đổi mode
+  stopAllAudio(); 
 
   if (currentMode === 'FOCUS') {
     if (sessionCount >= 4) {
@@ -108,7 +120,10 @@ function switchMode() {
     }
     currentMode = 'BREAK';
     timeLeft = BREAK_TIME;
-    audioEnd.play(); // Âm thanh kết thúc Sharingan
+    
+    // Vá lỗi: Load lại audio kết thúc trước khi phát
+    audioEnd.load();
+    audioEnd.play();
   } else {
     currentMode = 'FOCUS';
     timeLeft = FOCUS_TIME;
@@ -118,15 +133,20 @@ function switchMode() {
   updateSharinganVisuals();
   updateDisplay();
   
-  // Tự động start sau khi switch (với delay nhẹ để nghe sound end)
+  // Tăng delay lên 1s để trình duyệt kịp reset luồng audio
   setTimeout(() => {
     startTimer();
-  }, 500); 
+  }, 1000); 
 }
 
 function startTimer() {
   if (isRunning) return;
   
+  // Lần đầu tiên nhấn START, kích hoạt quyền audio
+  if (sessionCount === 1 && currentMode === 'FOCUS' && timeLeft === FOCUS_TIME) {
+    unlockAudio();
+  }
+
   isRunning = true;
   startBtn.textContent = currentMode === 'FOCUS' ? "KEEP GOING" : "RECOVERING";
 
@@ -134,22 +154,26 @@ function startTimer() {
     chidoriVideo.play();
     
     if (sessionCount < 4) {
-      // Round 1, 2, 3
+      audioBegin.load();
       audioBegin.play();
-      audioBegin.onended =() => {
+      audioBegin.onended = () => {
+        audioFocus.load();
         audioFocus.play();
       };
     } else if (sessionCount === 4) {
-      // Round 4: Sequence đặc biệt: Keepgoing -> Begin -> Chidori
+      audioKeepGoing.load();
       audioKeepGoing.play();
       audioKeepGoing.onended = () => {
+        audioBegin.load();
         audioBegin.play();
+        audioChidori.load();
         audioChidori.play();
       };
     }
   } else {
-    // Thời gian BREAK
-    audioBreak.play();
+    // Vá lỗi: Đảm bảo audio nghỉ được nạp lại và phát dứt khoát
+    audioBreak.load();
+    audioBreak.play().catch(e => console.error("AudioBreak Error:", e));
   }
 
   updateSharinganVisuals();
