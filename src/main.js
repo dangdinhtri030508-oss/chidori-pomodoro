@@ -32,7 +32,7 @@ import chidoriSfx from './assets/chidorisound.mp3'
 
 // Cấu hình hằng số (Giữ nguyên 10s/5s để bạn test nhanh)
 
-const FOCUS_TIME =10;
+const FOCUS_TIME =10*60;
 
 const BREAK_TIME = 5;
 
