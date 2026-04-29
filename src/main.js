@@ -40,7 +40,7 @@ audioBreak.loop = true;
 
 const audioKeepGoing = new Audio(session4KeepGoingSfx);
 const audioChidori = new Audio(chidoriSfx);
-audioChidori.loop = false;
+audioChidori.loop = false; // QUAN TRỌNG: Tắt loop để dùng làm âm thanh chuyển tiếp ở Round 4
 audioChidori.volume = 0.3;
 
 const audioSS1 = new Audio(ss1Sfx);
@@ -101,7 +101,6 @@ function updateSharinganVisuals() {
 }
 
 // --- HÀM HỖ TRỢ PHÁT NHẠC AN TOÀN ---
-// Giúp bắt lỗi (catch error) khi trình duyệt chặn auto-play, tránh báo lỗi văng màn hình
 function safePlay(audioObj) {
   if (audioObj) {
     audioObj.play().catch(e => console.log("Audio play interrupted/prevented by browser"));
@@ -117,13 +116,12 @@ function stopAllAudio() {
   allAudios.forEach(audio => {
     audio.pause();
     audio.currentTime = 0;
-    // QUAN TRỌNG: Dọn dẹp sự kiện cũ để tránh chạy chồng chéo khi đổi session
     audio.onended = null; 
   });
 }
 
 function switchMode() {
-  stopAllAudio(); // Dừng âm thanh cũ trước khi đổi mode
+  stopAllAudio(); 
 
   if (currentMode === 'FOCUS') {
     if (sessionCount >= 4) {
@@ -133,7 +131,7 @@ function switchMode() {
     }
     currentMode = 'BREAK';
     timeLeft = BREAK_TIME;
-    safePlay(audioEnd); // Âm thanh kết thúc Sharingan
+    safePlay(audioEnd); 
   } else {
     currentMode = 'FOCUS';
     timeLeft = FOCUS_TIME;
@@ -143,7 +141,6 @@ function switchMode() {
   updateSharinganVisuals();
   updateDisplay();
   
-  // Tự động start sau khi switch
   setTimeout(() => {
     startTimer();
   }, 500); 
@@ -161,7 +158,6 @@ function startTimer() {
     }
     
     if (sessionCount < 4) {
-      // Gọi audio từ mảng: Session 1 lấy index 0, Session 2 lấy index 1...
       let currentKeepGoingAudio = keepGoingAudios[sessionCount - 1];
 
       // Chuỗi phát: Keepgoing Audio -> Sharingan Begin -> Focus Music
@@ -180,17 +176,16 @@ function startTimer() {
       
       audioKeepGoing.onended = () => {
         safePlay(audioBegin);
-        
         audioBegin.onended = () => {
           safePlay(audioChidori);
-          
-          // Khi tiếng Chidori kết thúc, mới bắt đầu vào nhạc nền Focus
+          // Đợi tiếng Chidori dứt hẳn mới phát nhạc nền làm việc
           audioChidori.onended = () => {
             safePlay(audioFocus);
           };
         };
       };
-    } else {
+    }
+  } else {
     // Thời gian BREAK: Phát Break_1, sau khi xong thì loop nhạc break nền
     safePlay(audioBreak1);
     
@@ -233,4 +228,4 @@ startBtn.addEventListener('click', startTimer);
 resetBtn.addEventListener('click', resetTimer);
 
 updateDisplay();
-updateSharinganVisuals();}
+updateSharinganVisuals();
