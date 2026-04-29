@@ -9,7 +9,7 @@ import mangekyou from './assets/itachi_sharingan.png'
 // --- CẬP NHẬT SOUND ASSETS ---
 import sharinganBeginSfx from './assets/sharingan_begin.mp3'
 import focusSfx from './assets/focus_music.mp3'
-import sharinganEndSfx from './assets/end_sharingan.mp3'
+import sharinganEndSfx from './assets/sharingan_end.mp3'
 import breakSfx from './assets/break_music.mp3'
 import session4KeepGoingSfx from './assets/Session_4_Keepgoing.mp3'
 import chidoriSfx from './assets/chidorisound.mp3'
@@ -48,18 +48,6 @@ const resetBtn = document.getElementById('reset-btn');
 const sharingan = document.getElementById('sharingan');
 const chidoriVideo = document.getElementById('chidori-bg');
 const segments = document.querySelectorAll('.battery-segment');
-
-// Vá lỗi: Kích hoạt tất cả âm thanh ngay khi người dùng tương tác lần đầu
-function unlockAudio() {
-  allAudios.forEach(audio => {
-    audio.play().then(() => {
-      audio.pause();
-      audio.currentTime = 0;
-    }).catch(() => {
-      // Bỏ qua lỗi nếu trình duyệt chưa cho phép
-    });
-  });
-}
 
 function updateDisplay() {
   const minutes = Math.floor(timeLeft / 60);
@@ -121,9 +109,9 @@ function switchMode() {
     currentMode = 'BREAK';
     timeLeft = BREAK_TIME;
     
-    // Vá lỗi: Load lại audio kết thúc trước khi phát
+    // Phát âm thanh kết thúc
     audioEnd.load();
-    audioEnd.play();
+    audioEnd.play().catch(e => console.log("Audio play prevented"));
   } else {
     currentMode = 'FOCUS';
     timeLeft = FOCUS_TIME;
@@ -133,7 +121,7 @@ function switchMode() {
   updateSharinganVisuals();
   updateDisplay();
   
-  // Tăng delay lên 1s để trình duyệt kịp reset luồng audio
+  // Delay 1s để trình duyệt sẵn sàng cho mode tiếp theo
   setTimeout(() => {
     startTimer();
   }, 1000); 
@@ -142,38 +130,33 @@ function switchMode() {
 function startTimer() {
   if (isRunning) return;
   
-  // Lần đầu tiên nhấn START, kích hoạt quyền audio
-  if (sessionCount === 1 && currentMode === 'FOCUS' && timeLeft === FOCUS_TIME) {
-    unlockAudio();
-  }
-
   isRunning = true;
   startBtn.textContent = currentMode === 'FOCUS' ? "KEEP GOING" : "RECOVERING";
 
   if (currentMode === 'FOCUS') {
-    chidoriVideo.play();
+    chidoriVideo.play().catch(() => {});
     
     if (sessionCount < 4) {
       audioBegin.load();
-      audioBegin.play();
+      audioBegin.play().catch(() => {});
       audioBegin.onended = () => {
         audioFocus.load();
-        audioFocus.play();
+        audioFocus.play().catch(() => {});
       };
     } else if (sessionCount === 4) {
       audioKeepGoing.load();
-      audioKeepGoing.play();
+      audioKeepGoing.play().catch(() => {});
       audioKeepGoing.onended = () => {
         audioBegin.load();
-        audioBegin.play();
+        audioBegin.play().catch(() => {});
         audioChidori.load();
-        audioChidori.play();
+        audioChidori.play().catch(() => {});
       };
     }
   } else {
-    // Vá lỗi: Đảm bảo audio nghỉ được nạp lại và phát dứt khoát
+    // Luôn load lại audioBreak trước khi phát để tránh lỗi "im lặng" sau 20p
     audioBreak.load();
-    audioBreak.play().catch(e => console.error("AudioBreak Error:", e));
+    audioBreak.play().catch(e => console.log("Break audio error:", e));
   }
 
   updateSharinganVisuals();
