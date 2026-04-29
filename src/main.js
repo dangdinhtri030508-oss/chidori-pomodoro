@@ -19,8 +19,8 @@ import ss3Sfx from './assets/Session_3_Keepgoing.mp3'
 import break1Sfx from './assets/Break_1.mp3'
 
 // Cấu hình hằng số (Giữ nguyên 10s/5s để bạn test nhanh)
-const FOCUS_TIME = 10;
-const BREAK_TIME = 5;
+const FOCUS_TIME = 20*60;
+const BREAK_TIME = 2*60;
 
 // Khởi tạo trạng thái
 let timeLeft = FOCUS_TIME; 
